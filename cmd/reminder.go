@@ -19,7 +19,7 @@ var RootCmd = &cobra.Command{
 		logger.InitLogger()
 		timer1 := time.NewTimer(30 * time.Second)
 		<-timer1.C
-		//startRecieve()
+		startRecieve()
 	},
 }
 
@@ -28,7 +28,7 @@ func init() {
 }
 
 func startRecieve() {
-	conn, err := amqp.Dial("amqp://guest:guest@10.20.30.20:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@127.0.0.1:5672/")
 	if err != nil {
 		logger.ContextLogger.Errorf("Failed to connect to RabbitMQ", err.Error())
 	}
