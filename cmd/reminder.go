@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"time"
+
 	"github.com/orensimple/otus_events_reminder/config"
 	"github.com/orensimple/otus_events_reminder/internal/logger"
 	"github.com/spf13/cobra"
@@ -15,7 +17,9 @@ var RootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		config.Init(addr)
 		logger.InitLogger()
-		startRecieve()
+		timer1 := time.NewTimer(30 * time.Second)
+		<-timer1.C
+		//startRecieve()
 	},
 }
 
@@ -24,7 +28,7 @@ func init() {
 }
 
 func startRecieve() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@10.20.30.20:5672/")
 	if err != nil {
 		logger.ContextLogger.Errorf("Failed to connect to RabbitMQ", err.Error())
 	}
