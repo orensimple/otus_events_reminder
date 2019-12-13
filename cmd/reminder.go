@@ -28,7 +28,7 @@ func init() {
 }
 
 func startRecieve() {
-	conn, err := amqp.Dial("amqp://guest:guest@127.0.0.1:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@myapp-rabbitmq:5672/")
 	if err != nil {
 		logger.ContextLogger.Errorf("Failed to connect to RabbitMQ", err.Error())
 	}
