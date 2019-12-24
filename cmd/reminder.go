@@ -113,8 +113,8 @@ func startRecieve() {
 
 	http.Handle("/metrics", promhttp.Handler())
 
-	log.Printf("Starting web server at %s\n", "localhost:9130")
-	err = http.ListenAndServe("localhost:9130", nil)
+	log.Printf("Starting web server at %s\n", "events-reminder:9130")
+	err = http.ListenAndServe("events-reminder:9130", nil)
 	if err != nil {
 		log.Printf("http.ListenAndServer: %v\n", err)
 	}
