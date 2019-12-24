@@ -1,10 +1,15 @@
 package cmd
 
 import (
+	"log"
+	"net/http"
+	"os"
 	"time"
 
 	"github.com/orensimple/otus_events_reminder/config"
 	"github.com/orensimple/otus_events_reminder/internal/logger"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 	"github.com/streadway/amqp"
 )
@@ -26,6 +31,12 @@ func init() {
 }
 
 func startRecieve() {
+	sendMessages := prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "reminders_count",
+		})
+	prometheus.MustRegister(sendMessages)
+
 	conn, err := amqp.Dial("amqp://guest:guest@myapp-rabbitmq:5672/")
 	if err != nil {
 		logger.ContextLogger.Errorf("Failed to connect to RabbitMQ, retry after 30 second", err.Error())
@@ -34,6 +45,7 @@ func startRecieve() {
 		conn, err = amqp.Dial("amqp://guest:guest@myapp-rabbitmq:5672/")
 		if err != nil {
 			logger.ContextLogger.Errorf("Failed to retry connect to RabbitMQ", err.Error())
+			os.Exit(1)
 		}
 	}
 	defer conn.Close()
@@ -94,9 +106,19 @@ func startRecieve() {
 
 	go func() {
 		for d := range msgs {
+			sendMessages.Inc()
 			logger.ContextLogger.Infof("Received a message:", d.Body)
 		}
 	}()
+
+	http.Handle("/metrics", promhttp.Handler())
+
+	log.Printf("Starting web server at %s\n", "localhost:9130")
+	err = http.ListenAndServe("localhost:9130", nil)
+	if err != nil {
+		log.Printf("http.ListenAndServer: %v\n", err)
+	}
+
 	logger.ContextLogger.Infof(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
 }
