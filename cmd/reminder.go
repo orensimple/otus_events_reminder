@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -112,11 +111,10 @@ func startRecieve() {
 	}()
 
 	http.Handle("/metrics", promhttp.Handler())
-
-	log.Printf("Starting web server at %s\n", "events-reminder:9130")
+	logger.ContextLogger.Infof("Starting web server at %s\n", "events-reminder:9130")
 	err = http.ListenAndServe("events-reminder:9130", nil)
 	if err != nil {
-		log.Printf("http.ListenAndServer: %v\n", err)
+		logger.ContextLogger.Errorf("http.ListenAndServer for metrics: %v\n", err.Error())
 	}
 
 	logger.ContextLogger.Infof(" [*] Waiting for messages. To exit press CTRL+C")
